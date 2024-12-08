@@ -1,0 +1,196 @@
+Time slot   0
+EMPTY QUEUE
+EMPTY QUEUE
+ld_routine
+	Loaded a process at input/proc/p0s, PID: 1 PRIO: 0
+Time slot   1
+	CPU 1: Dispatched process  1
+CALC
+EMPTY QUEUE
+Time slot   2
+ALLOC: print_pgtbl: 0 - 0
+traverse 0 0
+CHECKPOINT 3
+dump validate: 0 -1 512
+>dump validate: 0 0 512
+>dump validate: 0 0 0
+>dump validate: 0 0 512
+>dump validate: 1 3145727 3145727
+CHECKPOINT 4
+NUM PAGE 2
+vmaid: 0
+fpna: 1
+ptea 0: 80000001
+fpna: 0
+ptea 1: 80000000
+ALLOC_SUCCES: -1 299
+	Loaded a process at input/proc/p1s, PID: 2 PRIO: 15
+	CPU 0: Dispatched process  2
+CALC
+Time slot   3
+	Loaded a process at input/proc/p1s, PID: 3 PRIO: 0
+CALC
+MALLOC: print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+traverse 3145727 3145727
+CHECKPOINT1
+CHECKPOINT2
+CHECKPOINT 3
+dump validate: 1 3145728 3144960
+>dump validate: 1 3145727 3144960
+>dump validate: 0 0 512
+>dump validate: 1 3145727 3144960
+>dump validate: 1 3145727 3145727
+CHECKPOINT 4
+NUM PAGE 2
+vmaid: 1
+fpnm: 3
+ptem 12287: 80000003
+fpnm: 2
+ptem 12286: 80000002
+ALLOC_SUCCES: 3145728 3145428
+Time slot   4
+	Loaded a process at input/proc/p1s, PID: 4 PRIO: 0
+CALC
+FREE: print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+dumpi 0 -1 299
+enlist free -1 299
+Time slot   5
+ALLOC: print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+traverse -1 299
+find free space at -1 299 
+ALLOC_SUCCES_FREE: -1 99
+CALC
+Time slot   6
+write region=1 offset=20 value=100
+print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+addr 20
+ADDR ANALYSIS: 0 20
+Page 0: 80000001
+PHYADDR: 276
+Write in memphy
+memphy access: 276
+CALC
+Time slot   7
+	CPU 1: Put process  1 to run queue
+	CPU 1: Dispatched process  3
+CALC
+CALC
+Time slot   8
+CALC
+	CPU 0: Put process  2 to run queue
+	CPU 0: Dispatched process  4
+CALC
+Time slot   9
+CALC
+CALC
+Time slot  10
+CALC
+CALC
+CALC
+Time slot  11
+CALC
+Time slot  12
+CALC
+CALC
+Time slot  13
+CALC
+	CPU 1: Put process  3 to run queue
+	CPU 1: Dispatched process  1
+addr: 20
+Page 0: 80000001
+PHYADDR: 276
+READ in memphy
+memphy access: 276
+read region=1 offset=20 value=100
+print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+Time slot  14
+write region=2 offset=20 value=102
+print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+addr 21
+ADDR ANALYSIS: 0 21
+Page 0: 80000001
+PHYADDR: 277
+Write in memphy
+memphy access: 277
+	CPU 0: Put process  4 to run queue
+	CPU 0: Dispatched process  3
+CALC
+Time slot  15
+CALC
+addr: 21
+Page 0: 80000001
+PHYADDR: 277
+READ in memphy
+memphy access: 277
+read region=2 offset=20 value=102
+print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+Time slot  16
+write region=3 offset=20 value=103
+print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+addr 21
+ADDR ANALYSIS: 0 21
+Page 0: 80000001
+PHYADDR: 277
+Write in memphy
+memphy access: 277
+CALC
+Time slot  17
+CALC
+addr: 21
+Page 0: 80000001
+PHYADDR: 277
+READ in memphy
+memphy access: 277
+read region=3 offset=20 value=103
+print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+Time slot  18
+CALC
+	CPU 0: Processed  3 has finished
+	CPU 0: Dispatched process  4
+CALC
+Time slot  19
+	CPU 1: Put process  1 to run queue
+	CPU 1: Dispatched process  1
+FREE: print_pgtbl: 0 - 512
+00000000: 80000001
+00000004: 80000000
+dumpi 1 3145728 3145428
+enlist free 3145728 3145428
+CALC
+Time slot  20
+CALC
+CALC
+Time slot  21
+	CPU 1: Processed  1 has finished
+	CPU 1: Dispatched process  2
+CALC
+CALC
+Time slot  22
+CALC
+	CPU 0: Processed  4 has finished
+	CPU 0 stopped
+Time slot  23
+CALC
+Time slot  24
+CALC
+Time slot  25
+	CPU 1: Processed  2 has finished
+	CPU 1 stopped
