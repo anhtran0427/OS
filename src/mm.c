@@ -51,7 +51,7 @@ int init_pte(uint32_t *pte,
  */
 int pte_set_swap(uint32_t *pte, int swptyp, int swpoff)
 {
-  SETBIT(*pte, PAGING_PTE_PRESENT_MASK);
+  CLRBIT(*pte, PAGING_PTE_PRESENT_MASK);
   SETBIT(*pte, PAGING_PTE_SWAPPED_MASK);
 
   SETVAL(*pte, swptyp, PAGING_PTE_SWPTYP_MASK, PAGING_PTE_SWPTYP_LOBIT);
@@ -89,34 +89,53 @@ int vmap_page_range(struct pcb_t *caller, // process call
   //uint32_t * pte = malloc(sizeof(uint32_t));
   struct framephy_struct *fpit = frames;
 
-  int pgit = 1;
+  
   int pgn = PAGING_PGN(addr);
-  if (pgn==0) pgn=-1;
- if (pgn==(caller->vmemsz)/PAGING_PAGESZ-1)pgn=pgn+1; 
-  //mapstart=oldend->phai co trong do roi =adrr
-
+// printf("heh %d\n",addr); 
+ 
   ret_rg->rg_end = ret_rg->rg_start = addr; // at least the very first space is usable
- printf("vmaid: %d\n",ret_rg->vmaid);
+ //printf("vmaid: %d\n",pgn);
   /* TODO: update the rg_end and rg_start of ret_rg 
   //ret_rg->rg_end =  ....
   //ret_rg->rg_start = ...
   //ret_rg->vmaid = ...
   */
   if (ret_rg->vmaid==0){
-      for (pgit;pgit<=pgnum;pgit++){
+       int pgit;
+       
+ 
+        if (caller->mm->pgd[0]==0){
+      pgit = 0;
+        }
+        else{
+        pgit=1;
+        }
+
+	 for (pgit;pgit<=pgnum;pgit++){
         if (fpit==NULL){
             return -1;
             //not enough frame is provided
         }
-	printf("fpna: %d\n",fpit->fpn);
+//	printf("fpna: %d\n",fpit->fpn);
         init_pte(&(caller->mm->pgd[pgn + pgit]), 1,fpit->fpn,0,0,0,0);
-        printf("ptea %d: %08x\n", pgn+pgit, caller->mm->pgd[pgn+pgit]);
+//        printf("ptea %d: %08x\n", pgn+pgit, caller->mm->pgd[pgn+pgit]);
 	enlist_pgn_node(&caller->mm->fifo_pgn, pgn+pgit);
         fpit=fpit->fp_next;
       }
       ret_rg->rg_end = ret_rg->rg_start+pgnum*PAGING_PAGESZ;
   }
   else{
+	int pgit;
+       int maxPage=(caller->vmemsz - 1)/PAGING_PAGESZ;
+ 
+        if (caller->mm->pgd[maxPage]==0){
+      pgit = 0;
+	}
+	else{
+	pgit=1;
+	}
+      //printf("pgit %d\n",pgit);
+
       for (pgit;pgit<=pgnum;pgit++){
           if (fpit==NULL){
               return -1;
@@ -185,14 +204,16 @@ int alloc_pages_range(struct pcb_t *caller, int req_pgnum, struct framephy_struc
         uint32_t vicpte;
 
         if (find_victim_page(caller->mm, &vicpgn)<0){
-            return -1;
+           printf("find_victim\n");
+		 return -1;
         }
-
+	
         vicpte = caller->mm->pgd[vicpgn];
         vicfpn = PAGING_PTE_FPN(vicpte);
         /* Get free frame in MEMSWP */
 #ifdef SYNC
-        pthread_mutex_lock(&MEM_in_use); //for active_mswp
+        pthread_mutex_lock(&MEM_in_use);
+
 #endif
         int index_of_active_mswp;
         for (index_of_active_mswp = 0; index_of_active_mswp < PAGING_MAX_MMSWP; index_of_active_mswp++) {
@@ -210,14 +231,20 @@ int alloc_pages_range(struct pcb_t *caller, int req_pgnum, struct framephy_struc
             }
 #ifdef SYNC
             pthread_mutex_unlock(&MEM_in_use);
+
 #endif
             if (i == PAGING_MAX_MMSWP) return -3000; // MEMSWAP doesn't have enough space
        }
+
+#ifdef SYNC
+            pthread_mutex_unlock(&MEM_in_use);
+
+#endif
+
         /* Copy victim frame to swap */
         __swap_cp_page(caller->mram,vicfpn,
         caller->active_mswp, swpfpn);
-        MEMPHY_put_usedfp(caller->active_mswp,swpfpn);
-
+	MEMPHY_del_usedfp(caller->mram,vicfpn);
         //mswap->used, mram-> ?? (success: used, failed: free)
 
         pte_set_swap(&caller->mm->pgd[vicpgn], index_of_active_mswp, swpfpn);
@@ -270,7 +297,8 @@ int vm_map_ram(struct pcb_t *caller, int astart, int aend, int mapstart, int inc
   ret_alloc = alloc_pages_range(caller, incpgnum, &frm_lst);
   //return code
   if (ret_alloc < 0 && ret_alloc != -3000) {
-      struct framephy_struct *frmit ;
+
+	struct framephy_struct *frmit ;
       while (frm_lst!=NULL){
           MEMPHY_put_freefp(caller->mram,frm_lst->fpn);
           frmit=frm_lst;
@@ -322,6 +350,7 @@ int __swap_cp_page(struct memphy_struct *mpsrc, int srcfpn,
 {
   int cellidx;
   int addrsrc,addrdst;
+
   for(cellidx = 0; cellidx < PAGING_PAGESZ; cellidx++)
   {
     addrsrc = srcfpn * PAGING_PAGESZ + cellidx;
@@ -493,15 +522,32 @@ int print_pgtbl(struct pcb_t *caller, uint32_t start, uint32_t end)
   pgn_start = PAGING_PGN(start);
   pgn_end = PAGING_PGN(end);
 
-  printf("print_pgtbl: %d - %d", start, end);
+  printf("print_pgtbl for vmaid 0: %d - %d", start, end);
   if (caller == NULL) {printf("NULL caller\n"); return -1;}
     printf("\n");
 
 
-  for(pgit = pgn_start; pgit < pgn_end; pgit++)
+  for(pgit = pgn_start; pgit <= pgn_end; pgit++)
   {
      printf("%08ld: %08x\n", pgit * sizeof(uint32_t), caller->mm->pgd[pgit]);
   }
+   #ifdef MM_PAGING_HEAP_GODOWN
+  uint32_t heap_end;
+  pgn_start = caller->vmemsz / PAGING_PAGESZ - 1;
+  struct vm_area_struct *cur_vma = get_vma_by_num(caller->mm, 1);
+  heap_end = cur_vma->vm_end;
+  // pgn_start = PAGING_PGN(start);
+  pgn_end = PAGING_PGN(heap_end) ;
+
+  printf( "print_pgtbl for vmaid 1: %d - %d", caller->vmemsz - 1, heap_end);
+  if (caller == NULL) {printf("NULL caller\n"); return -1;}
+    printf("\n");
+  // Check if heap has alreay been allocated
+  for(pgit = pgn_start; pgit >=pgn_end; pgit--)
+  {
+     printf("%08ld: %08x\n", pgit * sizeof(uint32_t), caller->mm->pgd[pgit]);
+  }
+#endif
 
   return 0;
 }

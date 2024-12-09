@@ -10,6 +10,104 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
+int checkAddress(struct mm_struct *mm, int addr){
+ int include=0;
+ struct vm_area_struct *pvma= mm->mmap;
+ 
+  if(mm->mmap == NULL)
+    return 0;
+
+
+  while (pvma!=NULL)
+  {
+    if (pvma->vm_id==0){
+	if (addr>=pvma->vm_start&&addr<=pvma->sbrk){
+	 include=1;
+	break;
+	}
+    }
+	else{
+      if (addr<=pvma->vm_start&&addr>=pvma->sbrk){
+	include=1;
+	break;
+	}
+	}
+    pvma = pvma->vm_next;
+  }
+  //return vmait>=vmaid
+  return !include;
+
+
+}
+
+/*pg_getval - read value at given offset
+ *@mm: memory region
+ *@addr: virtual address to acess 
+ *@value: value
+ *
+ */
+int pg_getval(struct mm_struct *mm, int addr, BYTE *data, struct pcb_t *caller)
+{
+
+  if (checkAddress(mm,addr)) {
+	printf("Invalid\n");
+	return -1;
+}
+
+  int pgn = PAGING_PGN(addr);
+  int off = PAGING_OFFST(addr);
+  int fpn;
+
+  /* Get the page to MEMRAM, swap from MEMSWAP if needed */
+  if(pg_getpage(mm, pgn, &fpn, caller) != 0) 
+    return -1; /* invalid page access */
+
+  int phyaddr = (fpn << PAGING_ADDR_FPN_LOBIT) + off;
+
+  MEMPHY_read(caller->mram,phyaddr, data);
+
+  return 0;
+}
+
+/*pg_setval - write value to given offset
+ *@mm: memory region
+ *@addr: virtual address to acess 
+ *@value: value
+ *
+ */
+int pg_setval(struct mm_struct *mm, int addr, BYTE value, struct pcb_t *caller)
+{
+
+
+  if (checkAddress(mm,addr)) {
+      printf("Invalid\n");
+      return -1;
+  }
+  
+  int pgn = PAGING_PGN(addr);
+  int off = PAGING_OFFST(addr);
+  int fpn;
+
+  /* Get the page to MEMRAM, swap from MEMSWAP if needed */
+  if(pg_getpage(mm, pgn, &fpn, caller) != 0) 
+    return -1; /* invalid page access */
+
+
+  int phyaddr = (fpn << PAGING_ADDR_FPN_LOBIT) + off;
+
+  MEMPHY_write(caller->mram,phyaddr, value);
+
+   return 0;
+}
+
+
+
+
+
+
+
+
 /*enlist_vm_freerg_list - add new rg to freerg_list
  *@mm: memory region
  *@rg_elmt: new region
@@ -19,16 +117,16 @@ int enlist_vm_freerg_list(struct mm_struct *mm, struct vm_rg_struct rg_elmt)
 {
 	
     int vmaid=rg_elmt.vmaid;
-	//printf("dump %d %d %d\n",rg_elmt.vmaid,rg_elmt.rg_start,rg_elmt.rg_end);
+
    if (rg_elmt.rg_start==-1) {
-	//printf("hehe");
+
 	}
     if (((rg_elmt.rg_start >= rg_elmt.rg_end) && (vmaid == 0) && (rg_elmt.rg_start!=-1)) ||
         ((rg_elmt.rg_start <= rg_elmt.rg_end) && (vmaid == 1)) ||
 	((rg_elmt.rg_start==-1 ) && (rg_elmt.rg_end<=0))){
-        //printf("dumpe %d %d %d\n",rg_elmt.vmaid,rg_elmt.rg_start,rg_elmt.rg_end);
+
 	return -1;
-	//printf("dumdp %d %d %d\n",rg_elmt.vmaid,rg_elmt.rg_start,rg_elmt.rg_end);
+
 }
     struct vm_rg_struct *newrg= malloc(sizeof(struct vm_rg_struct));
     newrg->rg_start=rg_elmt.rg_start;
@@ -41,11 +139,11 @@ int enlist_vm_freerg_list(struct mm_struct *mm, struct vm_rg_struct rg_elmt)
     struct vm_rg_struct *rg_node = cur_vma->vm_freerg_list;
 
   //freerg_list khong rong
-  if (rg_node != NULL)
+ 
     newrg->rg_next = rg_node;
 
   /* Enlist the new region to the start of list */
-  mm->mmap->vm_freerg_list = newrg;
+  cur_vma->vm_freerg_list = newrg;
 
   return 0;
 }
@@ -117,8 +215,17 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     caller->mm->symrgtbl[rgid].rg_start = rgnode.rg_start;
     caller->mm->symrgtbl[rgid].rg_end = rgnode.rg_end;
     caller->mm->symrgtbl[rgid].vmaid = rgnode.vmaid;
-	printf("ALLOC_SUCCES_FREE: %d %d\n",rgnode.rg_start,rgnode.rg_end);
-    *alloc_addr = (int) rgnode.rg_start;
+
+   if (vmaid==0) { 
+   for (int  addr=caller->mm->symrgtbl[rgid].rg_start+1;addr<=caller->mm->symrgtbl[rgid].rg_end;addr++){
+        pg_setval(caller->mm,addr,'\0',caller);
+   } }
+   else {
+   for (int addr=caller->mm->symrgtbl[rgid].rg_start-1;addr>=caller->mm->symrgtbl[rgid].rg_end;addr--){
+        pg_setval(caller->mm,addr,'\0',caller);
+   } }
+
+   *alloc_addr = (int) rgnode.rg_start;
 
     return 0;
   }
@@ -139,6 +246,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   if (vmaid == 0) {
         // Check for OOM
 #ifdef MM_PAGING_HEAP_GODOWN
+   if (old_sbrk==cur_vma->vm_start&&old_sbrk==cur_vma->vm_end) old_sbrk-=1;
     if (old_sbrk + size >= caller->vmemsz) {
             return -1;
         }
@@ -152,13 +260,14 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     }
   else { // vmaid = 1
         // Check for OOM
-	printf("CHECKPOINT1\n");
+        if (old_sbrk==cur_vma->vm_start&&old_sbrk==cur_vma->vm_end) old_sbrk+=1;
         if (old_sbrk - size < 0) {
             return -1;
 
         }
+
         if (old_sbrk - size < (int)cur_vma->vm_end) {
-        printf("CHECKPOINT2\n");   
+         
 	 inc_vma_limit(caller, vmaid, inc_sz, &inc_limit_ret);
             if (inc_limit_ret == 0) {
                 return -1;
@@ -197,9 +306,18 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
         }
 #endif
     }
- printf("ALLOC_SUCCES: %d %d\n",caller->mm->symrgtbl[rgid].rg_start,caller->mm->symrgtbl[rgid].rg_end);
+
     caller->mm->symrgtbl[rgid].vmaid = vmaid;
-    *alloc_addr = (int) caller->mm->symrgtbl[rgid].rg_start;
+   if (vmaid==0) {
+   for (int addr=caller->mm->symrgtbl[rgid].rg_start+1;addr<=caller->mm->symrgtbl[rgid].rg_end;addr++){
+	pg_setval(caller->mm,addr,'\0',caller);
+   } }
+   else {
+   for (int addr=caller->mm->symrgtbl[rgid].rg_start-1;addr>=caller->mm->symrgtbl[rgid].rg_end;addr--){
+        pg_setval(caller->mm,addr,'\0',caller);
+   } }
+	
+   *alloc_addr = (int) caller->mm->symrgtbl[rgid].rg_start;
 
   return 0;
 }
@@ -229,13 +347,16 @@ int __free(struct pcb_t *caller, int rgid)
   struct vm_area_struct *cur_vma= get_vma_by_num(caller->mm,rgnode.vmaid);
 
   if (cur_vma!=NULL) {
-      struct vm_rg_struct *vmFreergList=cur_vma->vm_freerg_list;
-      while (vmFreergList!=NULL && vmFreergList->vmaid==rgnode.vmaid){
-          if (vmFreergList->rg_start==rgnode.rg_end){ //rg_start==rg_end if up, -1 if down (rgnode->vmFreergList)
+      int haveMerged=0;
+	struct vm_rg_struct *vmFreergList=cur_vma->vm_freerg_list;
+      while (vmFreergList!=NULL && vmFreergList->vmaid==rgnode.vmaid){  
+
+	if (vmFreergList->rg_start==rgnode.rg_end){ //rg_start==rg_end if up, -1 if down (rgnode->vmFreergList)
               rgnode.rg_end=vmFreergList->rg_end;
               /*remove current node*/
               /*Clone next rg node */
               struct vm_rg_struct *nextrg = vmFreergList->rg_next;
+	
               if (nextrg != NULL)
               {
                   vmFreergList->rg_start = nextrg->rg_start;
@@ -248,8 +369,9 @@ int __free(struct pcb_t *caller, int rgid)
                   vmFreergList->rg_start = vmFreergList->rg_end;	//dummy, size 0 region
                   vmFreergList->rg_next = NULL;
               }
+		haveMerged=1;
           }
-          else if (vmFreergList->rg_end==rgnode.rg_start){ //rg_end==rg_start-1 if up, +1 neu down (vmfr->rgnode)
+          else  if (vmFreergList->rg_end==rgnode.rg_start){ //rg_end==rg_start-1 if up, +1 neu down (vmfr->rgnode)
               rgnode.rg_start=vmFreergList->rg_start;
               /*Remove current node */
               /*Clone next rg node */
@@ -266,15 +388,23 @@ int __free(struct pcb_t *caller, int rgid)
                   vmFreergList->rg_start = vmFreergList->rg_end;	//dummy, size 0 region
                   vmFreergList->rg_next = NULL;
               }
+		haveMerged=1;
           }
-          vmFreergList=vmFreergList->rg_next;
+          	vmFreergList=vmFreergList->rg_next;
+	if (vmFreergList==NULL){
+		if (haveMerged==0) break;
+		else{
+		haveMerged=0;
+		vmFreergList=cur_vma->vm_freerg_list;
+	}
+	}
       }
   }
 
   /* TODO: Manage the collect freed region to freerg_list */
-  printf("dumpi %d %d %d\n",rgnode.vmaid,rgnode.rg_start, rgnode.rg_end);
+ 
   enlist_vm_freerg_list(caller->mm, rgnode);
-  printf("enlist free %d %d\n",rgnode.rg_start, rgnode.rg_end);
+
   caller->mm->symrgtbl[rgid].rg_start = 0;
   caller->mm->symrgtbl[rgid].rg_end = 0;
 
@@ -293,8 +423,9 @@ int __free(struct pcb_t *caller, int rgid)
 int pgalloc(struct pcb_t *proc, uint32_t size, uint32_t reg_index)
 {
   int addr;
-	printf("ALLOC: ");
-	print_pgtbl(proc, 0, -1); //print max TBL
+//print_pgtbl(proc, 0, -1); //print max TBL
+//print_list_fp(proc->mram->used_fp_list);	
+//print_list_pgn(proc->mm->fifo_pgn);
 	
   /* By default using vmaid = 0 data*/
   return __alloc(proc, 0, reg_index, size, &addr);
@@ -307,10 +438,11 @@ int pgalloc(struct pcb_t *proc, uint32_t size, uint32_t reg_index)
  */
 int pgmalloc(struct pcb_t *proc, uint32_t size, uint32_t reg_index)
 {
-printf("MALLOC: ");
+
   int addr;
-	print_pgtbl(proc, 0, -1); //print max TBL
+ //print_pgtbl(proc, 0, -1); //print max TBL
   /* By default using vmaid = 1 heap */
+//print_list_fp(proc->mram->used_fp_list);        
   return __alloc(proc, 1, reg_index, size, &addr);
 }
 
@@ -322,9 +454,9 @@ printf("MALLOC: ");
 
 int pgfree_data(struct pcb_t *proc, uint32_t reg_index)
 {
-printf("FREE: ");
-print_pgtbl(proc, 0, -1); //print max TBL
 
+//print_pgtbl(proc, 0, -1); //print max TBL
+//print_list_fp(proc->mram->used_fp_list);        
    return __free(proc, reg_index);
 }
 
@@ -338,13 +470,13 @@ print_pgtbl(proc, 0, -1); //print max TBL
 int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
 {
   uint32_t pte = mm->pgd[pgn];
- printf("Page 0: %08x\n",pte);
+
   if (!PAGING_PTE_PAGE_PRESENT(pte))
   { /* Page is not online, make it actively living */
     int vicpgn, swpfpn;
     int vicfpn;
     uint32_t vicpte;
-
+	
     int tgtfpn = PAGING_PTE_SWP(pte);//the target frame storing our variable
     int index_of_mswp= PAGING_PTE_SWPTYP(pte);
     int fpn_temp;
@@ -359,14 +491,18 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
         //mram->used?
     }
     else{
+
         if (find_victim_page(caller->mm, &vicpgn)<0){
             return -1;
         }
         vicpte = mm->pgd[vicpgn];
         vicfpn = PAGING_PTE_FPN(vicpte);
+
 #ifdef SYNC
         pthread_mutex_lock(&MEM_in_use);
+
 #endif
+
         /* Get free frame in MEMSWP */
         int index_of_active_mswp;
         for (index_of_active_mswp = 0; index_of_active_mswp < PAGING_MAX_MMSWP; index_of_active_mswp++) {
@@ -382,11 +518,20 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
                     break;
                 }
             }
-            if (i == PAGING_MAX_MMSWP) return -1; // MEMSWAP doesn't ha
+            if (i == PAGING_MAX_MMSWP){
 #ifdef SYNC
             pthread_mutex_unlock(&MEM_in_use);
+
 #endif
-        }
+
+		 return -1; // MEMSWAP doesn't ha
+}
+}
+#ifdef SYNC
+            pthread_mutex_unlock(&MEM_in_use);
+
+#endif
+        
         __swap_cp_page(caller->mram,vicfpn,
                        caller->active_mswp, swpfpn);
 
@@ -425,67 +570,12 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
     enlist_pgn_node(&caller->mm->fifo_pgn,pgn);
   }
 
-  *fpn = PAGING_PTE_FPN(pte);
+  *fpn = PAGING_PTE_FPN(mm->pgd[pgn]);
 
   return 0;
 }
 
-/*pg_getval - read value at given offset
- *@mm: memory region
- *@addr: virtual address to acess 
- *@value: value
- *
- */
-int pg_getval(struct mm_struct *mm, int addr, BYTE *data, struct pcb_t *caller)
-{
- printf("addr: %d\n",addr);
-  int pgn = PAGING_PGN(addr);
-  int off = PAGING_OFFST(addr);
-  int fpn;
 
-  /* Get the page to MEMRAM, swap from MEMSWAP if needed */
-  if(pg_getpage(mm, pgn, &fpn, caller) != 0) 
-    return -1; /* invalid page access */
-
-  int phyaddr = (fpn << PAGING_ADDR_FPN_LOBIT) + off;
-  printf("PHYADDR: %d\n",phyaddr);
-  MEMPHY_read(caller->mram,phyaddr, data);
-
-  return 0;
-}
-
-/*pg_setval - write value to given offset
- *@mm: memory region
- *@addr: virtual address to acess 
- *@value: value
- *
- */
-int pg_setval(struct mm_struct *mm, int addr, BYTE value, struct pcb_t *caller)
-{
-  printf("addr %d\n",addr);
-  int pgn = PAGING_PGN(addr);
-  int off = PAGING_OFFST(addr);
-  int fpn;
-	printf("ADDR ANALYSIS: %d %d\n",pgn,off);
-  /* Get the page to MEMRAM, swap from MEMSWAP if needed */
-  if(pg_getpage(mm, pgn, &fpn, caller) != 0) 
-    return -1; /* invalid page access */
-
-  int phyaddr = (fpn << PAGING_ADDR_FPN_LOBIT) + off;
-  printf("PHYADDR: %d\n",phyaddr);
-  MEMPHY_write(caller->mram,phyaddr, value);
-
-   return 0;
-}
-
-/*__read - read value in region memory
- *@caller: caller
- *@vmaid: ID vm area to alloc memory region
- *@offset: offset to acess in memory region 
- *@rgid: memory region ID (used to identify variable in symbole table)
- *@size: allocated size 
- *
- */
 int __read(struct pcb_t *caller, int rgid, int offset, BYTE *data)
 {
   struct vm_rg_struct *currg = get_symrg_byid(caller->mm, rgid);
@@ -496,7 +586,7 @@ int __read(struct pcb_t *caller, int rgid, int offset, BYTE *data)
   if(currg == NULL || cur_vma == NULL) /* Invalid memory identify */
 	  return -1;
 
-  pg_getval(caller->mm, currg->rg_start + 1 + offset, data, caller);
+  pg_getval(caller->mm, currg->rg_start  + offset, data, caller);
 
   return 0;
 }
@@ -517,8 +607,9 @@ int pgread(
   printf("read region=%d offset=%d value=%d\n", source, offset, data);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
+//print_list_fp(proc->mram->used_fp_list);        
 #endif
-//  MEMPHY_dump(proc->mram);
+  MEMPHY_dump(proc->mram);
 #endif
 
   return val;
@@ -536,13 +627,13 @@ int __write(struct pcb_t *caller, int rgid, int offset, BYTE value)
 {
   struct vm_rg_struct *currg = get_symrg_byid(caller->mm, rgid);
   int vmaid = currg->vmaid;
-	//printf("Write address %d\n",currg->rg_start+offset);
+
   struct vm_area_struct *cur_vma = get_vma_by_num(caller->mm, vmaid);
   
   if(currg == NULL || cur_vma == NULL) /* Invalid memory identify */
 	  return -1;
 
-  pg_setval(caller->mm, currg->rg_start + 1  + offset, value, caller);
+  pg_setval(caller->mm, currg->rg_start   + offset, value, caller);
 
   return 0;
 }
@@ -558,8 +649,9 @@ int pgwrite(
   printf("write region=%d offset=%d value=%d\n", destination, offset, data);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
+//print_list_fp(proc->mram->used_fp_list);        
 #endif
- // MEMPHY_dump(proc->mram);
+  MEMPHY_dump(proc->mram);
 #endif
 
   return __write(proc, destination, offset, data);
@@ -607,20 +699,23 @@ struct vm_rg_struct* get_vm_area_node_at_brk(struct pcb_t *caller, int vmaid, in
   struct vm_rg_struct * newrg;
   /* TODO retrive current vma to obtain newrg, current comment out due to compiler redundant warning*/
   struct vm_area_struct *cur_vma = get_vma_by_num(caller->mm, vmaid);
+   int old_sbrk=cur_vma->sbrk;  
 
   newrg = malloc(sizeof(struct vm_rg_struct));
   /* TODO: update the newrg boundary*/
   newrg->vmaid=vmaid;
   if (vmaid == 0) {
-      newrg->rg_start = cur_vma->sbrk;
-	if (cur_vma->sbrk==0) newrg->rg_start=-1;
-      newrg->rg_end = PAGING_PAGE_ALIGNSZ(newrg->rg_start + size );
+        if (old_sbrk==cur_vma->vm_start&&old_sbrk==cur_vma->vm_end) old_sbrk-=1;
+        newrg->rg_start = old_sbrk;
+	//if (cur_vma->sbrk==0) newrg->rg_start=-1;
+        newrg->rg_end = PAGING_PAGE_ALIGNSZ(newrg->rg_start + size)-1;
   }
   else {    //vmaid=1 (heap)
 #ifdef MM_PAGING_HEAP_GODOWN
-      newrg->rg_start = cur_vma->sbrk;
-	if (cur_vma->sbrk==caller->vmemsz-1) newrg->rg_start=caller->vmemsz;
-      newrg->rg_end = PAGING_PAGE_ALIGNSZ(newrg->rg_start - size )- PAGING_PAGESZ;;
+      if (old_sbrk==cur_vma->vm_start&&old_sbrk==cur_vma->vm_end) old_sbrk+=1;
+      newrg->rg_start =old_sbrk;
+	//if (cur_vma->sbrk==caller->vmemsz-1) newrg->rg_start=caller->vmemsz;
+      newrg->rg_end = ((old_sbrk -size)/PAGING_PAGESZ)*PAGING_PAGESZ;;
 #endif
   }
   return newrg;
@@ -635,7 +730,7 @@ struct vm_rg_struct* get_vm_area_node_at_brk(struct pcb_t *caller, int vmaid, in
  */
 int validate_overlap_vm_area(struct pcb_t *caller, int vmaid, int vmastart, int vmaend)
 {
-	printf("dump validate: %d %d %d\n", vmaid, vmastart, vmaend);
+
     if (vmaid==0){
         vmastart=vmastart+1;
     }
@@ -647,8 +742,7 @@ int validate_overlap_vm_area(struct pcb_t *caller, int vmaid, int vmastart, int 
   struct vm_area_struct *vma = caller->mm->mmap;
   /* TODO validate the planned memory area is not overlapped */
     while (vma !=NULL ){
-	 printf(">dump validate: %d %d %d\n", vmaid, vmastart, vmaend);
-	 printf(">dump validate: %d %d %d\n", vma->vm_id, vma->vm_start, vma->vm_end);
+
 
         if (vma->vm_id==vmaid) {
             vma=vma->vm_next;
@@ -684,38 +778,45 @@ int inc_vma_limit(struct pcb_t *caller, int vmaid, int inc_sz, int* inc_limit_re
     struct vm_rg_struct * newrg = malloc(sizeof(struct vm_rg_struct));
     newrg->vmaid = vmaid;
 
-
     struct vm_area_struct *cur_vma = get_vma_by_num(caller->mm, vmaid);
-    int inc_amt ;
+        int old_sbrk=cur_vma->sbrk;  
+	int inc_amt ;
 
     if (vmaid == 0) {
-        inc_amt = PAGING_PAGE_ALIGNSZ(inc_sz - (cur_vma->vm_end - cur_vma->sbrk));
+	 if (old_sbrk==cur_vma->vm_start&&old_sbrk==cur_vma->vm_end) old_sbrk-=1;
+	int new_vmaend= PAGING_PAGE_ALIGNSZ(old_sbrk + inc_sz) -1 ;
+        inc_amt = PAGING_PAGE_ALIGNSZ(-cur_vma->vm_end+(new_vmaend) );
     }
     else { // vmaid = 1
-        inc_amt = PAGING_PAGE_ALIGNSZ(inc_sz - (cur_vma->sbrk - cur_vma->vm_end));  //size from vm_end
-    }
+	if (old_sbrk==cur_vma->vm_start&&old_sbrk==cur_vma->vm_end) old_sbrk+=1;
+	int new_vmaend = ((old_sbrk - inc_sz)/PAGING_PAGESZ)*PAGING_PAGESZ; 
+
+	inc_amt = PAGING_PAGE_ALIGNSZ(cur_vma->vm_end-(new_vmaend));  //size from vm_end
+   }
+
     int incnumpage =  inc_amt / PAGING_PAGESZ; // Num pages allocated begin at vm_end
 	
     struct vm_rg_struct *area = get_vm_area_node_at_brk(caller, vmaid, inc_sz, inc_amt);
 
     int old_end = (int)cur_vma->vm_end;
     /*Validate overlap of obtained region */
-	printf("CHECKPOINT 3\n");
+
     if (validate_overlap_vm_area(caller, vmaid, area->rg_start, area->rg_end) < 0){
         free(newrg);
         free(area);
         return -1; /*Overlap and failed allocation */
     }
-	printf("CHECKPOINT 4\n");
+
+	
     /* TODO: Obtain the new vm area based on vmaid */
     if (vmaid == 0) {
-        cur_vma->vm_end = PAGING_PAGE_ALIGNSZ(cur_vma->sbrk + inc_sz);
+        cur_vma->vm_end = PAGING_PAGE_ALIGNSZ(old_sbrk + inc_sz) -1 ;
     }
     else {
-        cur_vma->vm_end = PAGING_PAGE_ALIGNSZ(cur_vma->sbrk - inc_sz) - PAGING_PAGESZ; // to avoid rounding up
+        cur_vma->vm_end = ((old_sbrk - inc_sz)/PAGING_PAGESZ)*PAGING_PAGESZ; ; // to avoid rounding up
     }
 
-	printf("NUM PAGE %d\n",incnumpage);
+
     /* May needs provide some physical frames and then map them using Page Table Entry begin at old end*/
     if (vm_map_ram(caller, area->rg_start, area->rg_end,
                    old_end, incnumpage , newrg) < 0) {
@@ -790,10 +891,10 @@ int get_free_vmrg_area(struct pcb_t *caller, int vmaid, int size, struct vm_rg_s
   int a=(vmaid==0)?1:-1;
   /* Traverse on list of free vm region to find a fit space */
   while (rgit != NULL && rgit->vmaid == vmaid)
-  {	printf("traverse %d %d\n",rgit->rg_start,rgit->rg_end);
+  {
     if ((rgit->rg_start + size-1 <= rgit->rg_end &&vmaid==0)||
             (rgit->rg_start-size+1>=rgit->rg_end&&vmaid==1))
-   { printf("find free space at %d %d \n",rgit->rg_start,rgit->rg_end);
+   {
 	 /* Current region has enough space */
       newrg->rg_start = rgit->rg_start;
       //rg_end=rg_start+size (vmail==0)= rg_start -size (vmaid==1)
@@ -833,7 +934,7 @@ int get_free_vmrg_area(struct pcb_t *caller, int vmaid, int size, struct vm_rg_s
       rgit = rgit->rg_next;	// Traverse next rg
     }
   }
-//printf("i tired %d %d\n",newrg->rg_start,newrg->rg_end);
+
  if(newrg->rg_start == newrg->rg_end) // new region not found
    return -1;
 

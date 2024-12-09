@@ -12,6 +12,7 @@ static pthread_mutex_t queue_lock;
 #ifdef MLQ_SCHED
 static struct queue_t mlq_ready_queue[MAX_PRIO];
 static int mlq_ready_queue_slot[MAX_PRIO];
+//static int prevPrio=-1;
 #endif
 void init_slot() {
     for (int i = 0; i < MAX_PRIO; i++) {
@@ -35,6 +36,8 @@ void init_scheduler(void) {
 
 	for (i = 0; i < MAX_PRIO; i ++)
 		mlq_ready_queue[i].size = 0;
+	init_slot();
+
 #endif
 	ready_queue.size = 0;
 	run_queue.size = 0;
@@ -57,12 +60,21 @@ struct pcb_t * get_mlq_proc(void) {
     pthread_mutex_lock(&queue_lock);
     while (queue_empty() == -1) {
         for (int i = 0; i < MAX_PRIO; i++) {
-            if (!empty(&mlq_ready_queue[i]) && mlq_ready_queue_slot[i]) {
-                proc = dequeue(&mlq_ready_queue[i]);
-                mlq_ready_queue_slot[i]--;
-                break;
-            }
-        }
+            if (!empty(&mlq_ready_queue[i])){
+		//printf("%d %d\n",i,mlq_ready_queue_slot[i]);
+ 		if( mlq_ready_queue_slot[i]) {
+                	proc = dequeue(&mlq_ready_queue[i]);
+               		 mlq_ready_queue_slot[i]--;
+               	 	//printf("After proc %d %d\n",i,mlq_ready_queue_slot[i]);
+			//if (prevPrio!=i&&prevPrio!=-1){
+			//	 mlq_ready_queue_slot[prevPrio] = MAX_PRIO - i;
+			//}
+			//prevPrio=i;
+			break;
+            	}
+		
+             }
+	}
         // Reset slot
         if (queue_empty() == -1 && proc == NULL) {
             init_slot();
@@ -73,7 +85,7 @@ struct pcb_t * get_mlq_proc(void) {
     }
     pthread_mutex_unlock(&queue_lock);
     return proc;
-}
+} 
 
 void put_mlq_proc(struct pcb_t * proc) {
 	pthread_mutex_lock(&queue_lock);

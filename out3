@@ -1,0 +1,112 @@
+Time slot   0---------------------------------
+ld_routine
+Time slot   1---------------------------------
+Time slot   2---------------------------------
+dump: 2 2
+	Loaded a process at input/proc/custom_mlq, PID: 1 PRIO: 139
+Time slot   3---------------------------------
+139 1
+After proc 139 0
+	CPU 0: Dispatched process  1 at 3
+CURRENT TIME 3CALC 1
+Time slot   4---------------------------------
+	CPU 0: Put process  1 to run queue at 4
+139 0
+139 1
+After proc 139 0
+	CPU 0: Dispatched process  1 at 4
+CURRENT TIME 4CALC 1
+Time slot   5---------------------------------
+	CPU 0: Put process  1 to run queue at 5
+139 0
+139 1
+After proc 139 0
+	CPU 0: Dispatched process  1 at 5
+CURRENT TIME 5CALC 1
+Time slot   6---------------------------------
+	CPU 0: Put process  1 to run queue at 6
+139 0
+139 1
+After proc 139 0
+	CPU 0: Dispatched process  1 at 6
+CURRENT TIME 6CALC 1
+dump: 6 6
+	Loaded a process at input/proc/custom_mlq, PID: 2 PRIO: 138
+	CPU 0: Put process  1 to run queue at 7
+138 2
+After proc 138 1
+	CPU 0: Dispatched process  2 at 7
+CURRENT TIME 7CALC 2
+Time slot   7---------------------------------
+	CPU 0: Put process  2 to run queue at 8
+138 1
+After proc 138 0
+	CPU 0: Dispatched process  2 at 8
+CURRENT TIME 8CALC 2
+Time slot   8---------------------------------
+	CPU 0: Put process  2 to run queue at 9
+138 0
+139 0
+138 2
+After proc 138 1
+	CPU 0: Dispatched process  2 at 9
+CURRENT TIME 9CALC 2
+Time slot   9---------------------------------
+dump: 10 10
+	Loaded a process at input/proc/custom_mlq, PID: 3 PRIO: 137
+	CPU 0: Put process  2 to run queue at 10
+137 3
+After proc 137 2
+	CPU 0: Dispatched process  3 at 10
+CURRENT TIME 10CALC 3
+Time slot  10---------------------------------
+Time slot  11---------------------------------
+	CPU 0: Put process  3 to run queue at 11
+137 2
+After proc 137 1
+	CPU 0: Dispatched process  3 at 11
+CURRENT TIME 11CALC 3
+Time slot  12---------------------------------
+	CPU 0: Put process  3 to run queue at 12
+137 1
+After proc 137 0
+	CPU 0: Dispatched process  3 at 12
+CURRENT TIME 12CALC 3
+Time slot  13---------------------------------
+	CPU 0: Put process  3 to run queue at 13
+137 0
+138 1
+After proc 138 0
+	CPU 0: Dispatched process  2 at 13
+CURRENT TIME 13CALC 2
+Time slot  14---------------------------------
+	CPU 0: Put process  2 to run queue at 14
+137 0
+138 0
+139 1
+After proc 139 0
+	CPU 0: Dispatched process  1 at 14
+CURRENT TIME 14CALC 1
+Time slot  15---------------------------------
+	CPU 0: Processed  1 has finished at 15
+137 0
+138 0
+137 3
+After proc 137 2
+	CPU 0: Dispatched process  3 at 15
+CURRENT TIME 15CALC 3
+Time slot  16---------------------------------
+	CPU 0: Put process  3 to run queue at 16
+137 2
+After proc 137 1
+	CPU 0: Dispatched process  3 at 16
+CURRENT TIME 16CALC 3
+Time slot  17---------------------------------
+	CPU 0: Processed  3 has finished at 17
+138 2
+After proc 138 1
+	CPU 0: Dispatched process  2 at 17
+CURRENT TIME 17CALC 2
+Time slot  18---------------------------------
+	CPU 0: Processed  2 has finished at 18
+	CPU 0 stopped at 18

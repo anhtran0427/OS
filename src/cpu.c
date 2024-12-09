@@ -54,12 +54,14 @@ int run(struct pcb_t * proc) {
 	struct inst_t ins = proc->code->text[proc->pc];
 	proc->pc++;
 	int stat = 1;
+	printf("CURRENT TIME %d ",current_time());
 	switch (ins.opcode) {
 	case CALC:
-		printf("CALC\n");
+		printf("CALC %d\n",proc->pid);
 		stat = calc(proc);
 		break;
 	case ALLOC:
+		printf("ALLOC %d\n",proc->pid);
 #ifdef MM_PAGING
 		stat = pgalloc(proc, ins.arg_0, ins.arg_1);
 
@@ -69,17 +71,21 @@ int run(struct pcb_t * proc) {
 		break;
 #ifdef MM_PAGING
 	case MALLOC:
+		printf("MALLOC %d\n",proc->pid);
 		stat = pgmalloc(proc, ins.arg_0, ins.arg_1);
 		break;
 #endif
 	case FREE:
+		printf("FREE %d\n",proc->pid);
 #ifdef MM_PAGING
+		
 		stat = pgfree_data(proc, ins.arg_0);
 #else
 		stat = free_data(proc, ins.arg_0);
 #endif
 		break;
 	case READ:
+		printf("READ %d\n",proc->pid);
 #ifdef MM_PAGING
 		stat = pgread(proc, ins.arg_0, ins.arg_1, ins.arg_2);
 #else
@@ -87,6 +93,7 @@ int run(struct pcb_t * proc) {
 #endif
 		break;
 	case WRITE:
+		printf("WRITE %d\n",proc->pid);
 #ifdef MM_PAGING
 		stat = pgwrite(proc, ins.arg_0, ins.arg_1, ins.arg_2);
 #else

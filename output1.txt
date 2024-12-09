@@ -1,0 +1,185 @@
+Time slot   0---------------------------------
+ld_routine
+	Loaded a process at input/proc/p0s, PID: 1 PRIO: 0
+Time slot   1---------------------------------
+	CPU 1: Dispatched process  1 at 1
+CURRENT TIME 1 CALC 1
+	Loaded a process at input/proc/p1s, PID: 2 PRIO: 15
+Time slot   2---------------------------------
+CURRENT TIME 2 ALLOC 1
+	CPU 0: Dispatched process  2 at 2
+CURRENT TIME 2 CALC 2
+	Loaded a process at input/proc/p1s, PID: 3 PRIO: 0
+Time slot   3---------------------------------
+CURRENT TIME 3 CALC 2
+CURRENT TIME 3 MALLOC 1
+fpnm: 3
+ptem 12287: 80000003
+fpnm: 2
+ptem 12286: 80000002
+	Loaded a process at input/proc/p1s, PID: 4 PRIO: 0
+CURRENT TIME 4 FREE 1
+Time slot   4---------------------------------
+CURRENT TIME 4 CALC 2
+Time slot   5---------------------------------
+CURRENT TIME 5 ALLOC 1
+CURRENT TIME 5 CALC 2
+Time slot   6---------------------------------
+CURRENT TIME 6 WRITE 1
+write region=1 offset=20 value=100
+print_pgtbl for vmaid 0: 0 - 511
+00000000: 80000001
+00000004: 80000000
+print_pgtbl for vmaid 1: 3145727 - 3145216
+00049148: 80000003
+00049144: 80000002
+frame: 2----------------------
+frame: 3----------------------
+frame: 0----------------------
+frame: 1----------------------
+CURRENT TIME 6 CALC 2
+Time slot   7---------------------------------
+	CPU 1: Put process  1 to run queue at 7
+	CPU 1: Dispatched process  3 at 7
+CURRENT TIME 7 CALC 3
+CURRENT TIME 7 CALC 2
+Time slot   8---------------------------------
+CURRENT TIME 8 CALC 3
+	CPU 0: Put process  2 to run queue at 8
+	CPU 0: Dispatched process  4 at 8
+CURRENT TIME 8 CALC 4
+Time slot   9---------------------------------
+CURRENT TIME 9 CALC 3
+CURRENT TIME 9 CALC 4
+Time slot  10---------------------------------
+CURRENT TIME 10 CALC 3
+CURRENT TIME 10 CALC 4
+Time slot  11---------------------------------
+CURRENT TIME 11 CALC 3
+CURRENT TIME 11 CALC 4
+Time slot  12---------------------------------
+CURRENT TIME 12 CALC 3
+CURRENT TIME 12 CALC 4
+Time slot  13---------------------------------
+	CPU 1: Put process  3 to run queue at 13
+	CPU 1: Dispatched process  1 at 13
+CURRENT TIME 13 READ 1
+read region=1 offset=20 value=100
+print_pgtbl for vmaid 0: 0 - 511
+00000000: 80000001
+00000004: 80000000
+print_pgtbl for vmaid 1: 3145727 - 3145216
+00049148: 80000003
+00049144: 80000002
+frame: 2----------------------
+frame: 3----------------------
+frame: 0----------------------
+frame: 1----------------------
+address 0x00000113: 100
+CURRENT TIME 13 CALC 4
+Time slot  14---------------------------------
+CURRENT TIME 14 WRITE 1
+write region=2 offset=20 value=102
+print_pgtbl for vmaid 0: 0 - 511
+00000000: 80000001
+00000004: 80000000
+print_pgtbl for vmaid 1: 3145727 - 3145216
+00049148: 80000003
+00049144: 80000002
+frame: 2----------------------
+frame: 3----------------------
+frame: 0----------------------
+frame: 1----------------------
+address 0x00000113: 100
+	CPU 0: Put process  4 to run queue at 14
+	CPU 0: Dispatched process  3 at 14
+CURRENT TIME 14 CALC 3
+Time slot  15---------------------------------
+CURRENT TIME 15 READ 1
+read region=2 offset=20 value=102
+print_pgtbl for vmaid 0: 0 - 511
+00000000: 80000001
+00000004: 80000000
+print_pgtbl for vmaid 1: 3145727 - 3145216
+00049148: 80000003
+00049144: 80000002
+frame: 2----------------------
+frame: 3----------------------
+frame: 0----------------------
+frame: 1----------------------
+address 0x00000113: 100
+address 0x00000114: 102
+CURRENT TIME 15 CALC 3
+Time slot  16---------------------------------
+CURRENT TIME 16 WRITE 1
+write region=3 offset=20 value=103
+print_pgtbl for vmaid 0: 0 - 511
+00000000: 80000001
+00000004: 80000000
+print_pgtbl for vmaid 1: 3145727 - 3145216
+00049148: 80000003
+00049144: 80000002
+frame: 2----------------------
+frame: 3----------------------
+frame: 0----------------------
+frame: 1----------------------
+address 0x00000113: 100
+address 0x00000114: 102
+CURRENT TIME 16 CALC 3
+Time slot  17---------------------------------
+CURRENT TIME 17 CALC 3
+CURRENT TIME 17 READ 1
+read region=3 offset=20 value=103
+print_pgtbl for vmaid 0: 0 - 511
+00000000: 80000001
+00000004: 80000000
+print_pgtbl for vmaid 1: 3145727 - 3145216
+00049148: 80000003
+00049144: 80000002
+frame: 2----------------------
+frame: 3----------------------
+frame: 0----------------------
+frame: 1----------------------
+address 0x00000113: 100
+address 0x00000114: 103
+Time slot  18---------------------------------
+CURRENT TIME 18 CALC 1
+	CPU 0: Processed  3 has finished at 18
+	CPU 0: Dispatched process  4 at 18
+CURRENT TIME 18 CALC 4
+Time slot  19---------------------------------
+	CPU 1: Put process  1 to run queue at 19
+	CPU 1: Dispatched process  1 at 19
+CURRENT TIME 19 FREE 1
+CURRENT TIME 19 CALC 4
+Time slot  20---------------------------------
+CURRENT TIME 20 CALC 1
+CURRENT TIME 20 CALC 4
+Time slot  21---------------------------------
+CURRENT TIME 21 CALC 1
+CURRENT TIME 21 CALC 4
+Time slot  22---------------------------------
+CURRENT TIME 22 CALC 1
+	CPU 0: Processed  4 has finished at 22
+	CPU 0: Dispatched process  2 at 22
+CURRENT TIME 22 CALC 2
+Time slot  23---------------------------------
+CURRENT TIME 23 CALC 1
+CURRENT TIME 23 CALC 2
+Time slot  24---------------------------------
+CURRENT TIME 24 CALC 1
+CURRENT TIME 24 CALC 2
+Time slot  25---------------------------------
+	CPU 1: Put process  1 to run queue at 25
+	CPU 1: Dispatched process  1 at 25
+CURRENT TIME 25 CALC 1
+CURRENT TIME 25 CALC 2
+Time slot  26---------------------------------
+CURRENT TIME 26 CALC 1
+	CPU 0: Processed  2 has finished at 26
+	CPU 0 stopped at 26
+Time slot  27---------------------------------
+CURRENT TIME 27 CALC 1
+Time slot  28---------------------------------
+	CPU 1: Processed  1 has finished at 28
+	CPU 1 stopped at 28

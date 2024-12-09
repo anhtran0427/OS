@@ -1,109 +1,91 @@
 Time slot   0---------------------------------
 ld_routine
-EMPTY QUEUE 0
-EMPTY QUEUE 1
-EMPTY QUEUE 2
-EMPTY QUEUE 3
-	Loaded a process at input/proc/p0s, PID: 1 PRIO: 130
-	CPU 3: Dispatched process  1
-CALC
 Time slot   1---------------------------------
-EMPTY QUEUE 2
-EMPTY QUEUE 0
-EMPTY QUEUE 1
-Time slot   2---------------------------------
-EMPTY QUEUE 2
-ALLOC: print_pgtbl: 0 - 0
+dump: 1 1
+	Loaded a process at input/proc/p0s, PID: 1 PRIO: 130
+	CPU 3: Dispatched process  1 at 1
+CURRENT TIME 1CALC 1
+CURRENT TIME 2ALLOC 1
 traverse 0 0
-CHECKPOINT 3
-dump validate: 0 -1 512
 >dump validate: 0 0 512
 >dump validate: 0 0 0
 >dump validate: 0 0 512
 >dump validate: 1 3145727 3145727
-CHECKPOINT 4
 NUM PAGE 2
 vmaid: 0
 fpna: 1
 ptea 0: 80000001
 fpna: 0
 ptea 1: 80000000
-ALLOC_SUCCES: -1 299
-EMPTY QUEUE 1
+ALLOC_SUCCES_NEW: -1 299
+dump: 2 2
 	Loaded a process at input/proc/s3, PID: 2 PRIO: 39
-	CPU 0: Dispatched process  2
-CALC
-	CPU 3: Put process  1 to run queue
-	CPU 3: Dispatched process  1
-MALLOC: print_pgtbl: 0 - 512
-00000000: 80000001
-00000004: 80000000
+Time slot   2---------------------------------
+	CPU 0: Dispatched process  2 at 2
+CURRENT TIME 2CALC 2
+	CPU 3: Put process  1 to run queue at 3
+	CPU 3: Dispatched process  1 at 3
+CURRENT TIME 3MALLOC 1
 traverse 3145727 3145727
-CHECKPOINT1
-CHECKPOINT2
-CHECKPOINT 3
-dump validate: 1 3145728 3144960
 >dump validate: 1 3145727 3144960
 >dump validate: 0 0 512
 >dump validate: 1 3145727 3144960
 >dump validate: 1 3145727 3145727
-CHECKPOINT 4
 NUM PAGE 2
 vmaid: 1
 fpnm: 3
 Time slot   3---------------------------------
-EMPTY QUEUE 2
-EMPTY QUEUE 1
+CURRENT TIME 3CALC 2
 ptem 12287: 80000003
 fpnm: 2
 ptem 12286: 80000002
-ALLOC_SUCCES: 3145728 3145428
-CALC
+ALLOC_SUCCES_NEW: 3145728 3145428
+dump: 4 4
 	Loaded a process at input/proc/m1s, PID: 3 PRIO: 15
-FREE: print_pgtbl: 0 - 512
-00000000: 80000001
-00000004: 80000000
-dumpi 0 -1 299
+CURRENT TIME 4FREE 1
 enlist free -1 299
-	CPU 2: Dispatched process  3
-ALLOC: print_pgtbl: 0 - 0
-traverse 0 0
 Time slot   4---------------------------------
-CHECKPOINT 3
-EMPTY QUEUE 1
-dump validate: 0 -1 512
+	CPU 0: Put process  2 to run queue at 4
+	CPU 0: Dispatched process  3 at 4
+CURRENT TIME 4ALLOC 3
+traverse 0 0
+	CPU 2: Dispatched process  2 at 4
+CURRENT TIME 4CALC 2
 >dump validate: 0 0 512
 >dump validate: 0 0 0
 >dump validate: 0 0 512
 >dump validate: 1 3145727 3145727
-CHECKPOINT 4
 NUM PAGE 2
 vmaid: 0
 fpna: 5
 ptea 0: 80000005
 fpna: 4
 ptea 1: 80000004
-ALLOC_SUCCES: -1 299
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
-	CPU 3: Put process  1 to run queue
-	CPU 3: Dispatched process  1
-ALLOC: print_pgtbl: 0 - 512
-00000000: 80000001
-00000004: 80000000
+ALLOC_SUCCES_NEW: -1 299
+	CPU 3: Put process  1 to run queue at 5
+	CPU 3: Dispatched process  1 at 5
+CURRENT TIME 5ALLOC 1
 traverse -1 299
 find free space at -1 299 
 ALLOC_SUCCES_FREE: -1 99
-ALLOC: print_pgtbl: 0 - 512
-00000000: 80000005
-00000004: 80000004
-traverse 0 0
-ALLOC_SUCCES: 299 399
 Time slot   5---------------------------------
-EMPTY QUEUE 1
-CALC
-	Loaded a process at input/proc/s2, PID: 4 PRIO: 120
+CURRENT TIME 5ALLOC 3
+traverse 0 0
+ALLOC_SUCCES_NEW: 299 399
+CURRENT TIME 5CALC 2
+Time slot   6---------------------------------
+	CPU 0: Put process  3 to run queue at 6
+	CPU 0: Dispatched process  3 at 6
+dump: 6 6
+CURRENT TIME 6	Loaded a process at input/proc/s2, PID: 4 PRIO: 120
+FREE 3
+enlist free -1 299
+	CPU 2: Put process  2 to run queue at 6
+	CPU 2: Dispatched process  2 at 6
+CURRENT TIME 6CALC 2
+	CPU 1: Dispatched process  4 at 6
+CURRENT TIME 6CALC 4
+CURRENT TIME 6WRITE 1
 write region=1 offset=20 value=100
 print_pgtbl: 0 - 512
 00000000: 80000001
@@ -112,30 +94,200 @@ addr 20
 ADDR ANALYSIS: 0 20
 Page 0: 80000001
 PHYADDR: 276
-Time slot   6---------------------------------
-	CPU 2: Put process  3 to run queue
-	CPU 2: Dispatched process  3
-FREE: print_pgtbl: 0 - 512
-00000000: 80000005
-00000004: 80000004
-dumpi 0 -1 299
-enlist free -1 299
-	CPU 1: Dispatched process  4
-CALC
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
 Time slot   7---------------------------------
-CALC
-CALC
-ALLOC: print_pgtbl: 0 - 512
-00000000: 80000005
-00000004: 80000004
+CURRENT TIME 7ALLOC 3
 traverse -1 299
 find free space at -1 299 
 ALLOC_SUCCES_FREE: -1 99
-	CPU 3: Put process  1 to run queue
-	CPU 3: Dispatched process  1
+dump: 7 7
+	Loaded a process at input/proc/m0s, PID: 5 PRIO: 120
+CURRENT TIME 7CALC 4
+	CPU 3: Put process  1 to run queue at 7
+CURRENT TIME 7CALC 2
+	CPU 3: Dispatched process  5 at 7
+CURRENT TIME 7ALLOC 5
+traverse 0 0
+>dump validate: 0 0 512
+>dump validate: 0 0 0
+>dump validate: 0 0 512
+>dump validate: 1 3145727 3145727
+NUM PAGE 2
+vmaid: 0
+fpna: 7
+ptea 0: 80000007
+fpna: 6
+ptea 1: 80000006
+ALLOC_SUCCES_NEW: -1 299
+Time slot   8---------------------------------
+	CPU 0: Put process  3 to run queue at 8
+	CPU 0: Dispatched process  3 at 8
+CURRENT TIME 8MALLOC 3
+	CPU 1: Put process  4 to run queue at 8
+	CPU 1: Dispatched process  4 at 8
+CURRENT TIME 8CALC 4
+CURRENT TIME 8ALLOC 5
+traverse 0 0
+ALLOC_SUCCES_NEW: 299 399
+	CPU 2: Put process  2 to run queue at 8
+	CPU 2: Dispatched process  2 at 8
+CURRENT TIME 8CALC 2
+dump: 9 9
+	Loaded a process at input/proc/p1s, PID: 6 PRIO: 15
+CURRENT TIME 9FREE 3
+enlist free -1 299
+	CPU 3: Put process  5 to run queue at 9
+	CPU 3: Dispatched process  5 at 9
+CURRENT TIME 9FREE 5
+enlist free -1 299
+CURRENT TIME 9CALC 2
+CURRENT TIME 9CALC 4
+Time slot   9---------------------------------
+Time slot  10---------------------------------
+	CPU 0: Put process  3 to run queue at 10
+	CPU 0: Dispatched process  6 at 10
+CURRENT TIME 10CALC 6
+CURRENT TIME 10ALLOC 5
+traverse -1 299
+find free space at -1 299 
+ALLOC_SUCCES_FREE: -1 99
+	CPU 1: Put process  4 to run queue at 10
+	CPU 1: Dispatched process  3 at 10
+CURRENT TIME 10FREE 3
+enlist free -1 399
+	CPU 2: Put process  2 to run queue at 10
+	CPU 2: Dispatched process  2 at 10
+CURRENT TIME 10CALC 2
+dump: 11 11
+	Loaded a process at input/proc/s0, PID: 7 PRIO: 38
+CURRENT TIME 11CALC 2
+Time slot  11---------------------------------
+CURRENT TIME 11CALC 6
+	CPU 3: Put process  5 to run queue at 11
+	CPU 3: Dispatched process  7 at 11
+CURRENT TIME 11CALC 7
+	CPU 1: Processed  3 has finished at 11
+	CPU 1: Dispatched process  4 at 11
+CURRENT TIME 11CALC 4
+Time slot  12---------------------------------
+	CPU 0: Put process  6 to run queue at 12
+	CPU 0: Dispatched process  6 at 12
+CURRENT TIME 12CALC 6
+	CPU 2: Put process  2 to run queue at 12
+	CPU 2: Dispatched process  2 at 12
+CURRENT TIME 12CALC 2
+CURRENT TIME 12CALC 4
+CURRENT TIME 12CALC 7
+CURRENT TIME 13CALC 2
+	CPU 3: Put process  7 to run queue at 13
+	CPU 3: Dispatched process  7 at 13
+CURRENT TIME 13CALC 7
+Time slot  13---------------------------------
+CURRENT TIME 13CALC 6
+	CPU 1: Put process  4 to run queue at 13
+	CPU 1: Dispatched process  5 at 13
+CURRENT TIME 13MALLOC 5
+traverse 3145727 3145727
+>dump validate: 1 3145727 3145216
+>dump validate: 0 0 512
+>dump validate: 1 3145727 3145216
+>dump validate: 1 3145727 3145727
+NUM PAGE 1
+vmaid: 1
+fpnm: 7
+ptem 12287: 80000007
+ALLOC_SUCCES_NEW: 3145728 3145628
+Time slot  14---------------------------------
+	CPU 2: Put process  2 to run queue at 14
+	CPU 2: Dispatched process  2 at 14
+CURRENT TIME 14CALC 2
+	CPU 0: Put process  6 to run queue at 14
+	CPU 0: Dispatched process  6 at 14
+CURRENT TIME 14CALC 6
+CURRENT TIME 14WRITE 5
+write region=1 offset=20 value=102
+print_pgtbl: 0 - 512
+00000000: c0000000
+00000004: 80000006
+addr 320
+ADDR ANALYSIS: 1 64
+Page 0: 80000006
+PHYADDR: 1600
+CURRENT TIME 14CALC 7
+CURRENT TIME 15CALC 2
+Time slot  15---------------------------------
+CURRENT TIME 15CALC 6
+	CPU 3: Put process  7 to run queue at 15
+	CPU 3: Dispatched process  7 at 15
+CURRENT TIME 15CALC 7
+	CPU 1: Put process  5 to run queue at 15
+	CPU 1: Dispatched process  4 at 15
+CURRENT TIME 15CALC 4
+Time slot  16---------------------------------
+	CPU 0: Put process  6 to run queue at 16
+	CPU 0: Dispatched process  6 at 16
+CURRENT TIME 16CALC 6
+dump: 16 16
+	Loaded a process at input/proc/s1, PID: 8 PRIO: 0
+CURRENT TIME 16CALC 7
+	CPU 2: Put process  2 to run queue at 16
+	CPU 2: Dispatched process  8 at 16
+CURRENT TIME 16CALC 8
+CURRENT TIME 16CALC 4
+	CPU 3: Put process  7 to run queue at 17
+	CPU 3: Dispatched process  7 at 17
+CURRENT TIME 17CALC 7
+Time slot  17---------------------------------
+CURRENT TIME 17CALC 6
+	CPU 1: Put process  4 to run queue at 17
+	CPU 1: Dispatched process  2 at 17
+CURRENT TIME 17CALC 2
+CURRENT TIME 17CALC 8
+Time slot  18---------------------------------
+	CPU 0: Put process  6 to run queue at 18
+	CPU 0: Dispatched process  6 at 18
+CURRENT TIME 18CALC 6
+CURRENT TIME 18CALC 7
+	CPU 2: Put process  8 to run queue at 18
+	CPU 2: Dispatched process  8 at 18
+CURRENT TIME 18CALC 8
+CURRENT TIME 18CALC 2
+	CPU 3: Put process  7 to run queue at 19
+	CPU 3: Dispatched process  7 at 19
+CURRENT TIME 19CALC 7
+Time slot  19---------------------------------
+CURRENT TIME 19CALC 8
+CURRENT TIME 19CALC 6
+	CPU 1: Put process  2 to run queue at 19
+	CPU 1: Dispatched process  2 at 19
+CURRENT TIME 19CALC 2
+CURRENT TIME 20CALC 7
+Time slot  20---------------------------------
+	CPU 2: Put process  8 to run queue at 20
+	CPU 2: Dispatched process  8 at 20
+CURRENT TIME 20CALC 8
+	CPU 0: Processed  6 has finished at 20
+	CPU 0: Dispatched process  5 at 20
+CURRENT TIME 20WRITE 5
+write region=2 offset=1000 value=1
+print_pgtbl: 0 - 512
+00000000: c0000000
+00000004: 80000006
+addr 1000
+ADDR ANALYSIS: 3 232
+Page 0: 00000000
+	CPU 1: Processed  2 has finished at 20
+	CPU 1: Dispatched process  4 at 20
+CURRENT TIME 20CALC 4
+PHYADDR: 232
+	CPU 3: Put process  7 to run queue at 21
+	CPU 3: Dispatched process  7 at 21
+CURRENT TIME 21CALC 7
+CURRENT TIME 21CALC 8
+Time slot  21---------------------------------
+	CPU 0: Processed  5 has finished at 21
+	CPU 0: Dispatched process  1 at 21
+CURRENT TIME 21CURRENT TIME 21CALC 4
+READ 1
 addr: 20
 Page 0: 80000001
 PHYADDR: 276
@@ -143,7 +295,9 @@ read region=1 offset=20 value=100
 print_pgtbl: 0 - 512
 00000000: 80000001
 00000004: 80000000
-	Loaded a process at input/proc/m0s, PID: 5 PRIO: 120
+CURRENT TIME 22CALC 7
+Time slot  22---------------------------------
+CURRENT TIME 22WRITE 1
 write region=2 offset=20 value=102
 print_pgtbl: 0 - 512
 00000000: 80000001
@@ -152,222 +306,31 @@ addr 21
 ADDR ANALYSIS: 0 21
 Page 0: 80000001
 PHYADDR: 277
-Time slot   8---------------------------------
-	CPU 2: Put process  3 to run queue
-	CPU 2: Dispatched process  3
-MALLOC: print_pgtbl: 0 - 512
-00000000: 80000005
-00000004: 80000004
-	CPU 1: Put process  4 to run queue
-	CPU 1: Dispatched process  5
-ALLOC: print_pgtbl: 0 - 0
-traverse 0 0
-CHECKPOINT 3
-dump validate: 0 -1 512
->dump validate: 0 0 512
->dump validate: 0 0 0
->dump validate: 0 0 512
->dump validate: 1 3145727 3145727
-CHECKPOINT 4
-NUM PAGE 2
-vmaid: 0
-fpna: 7
-ptea 0: 80000007
-fpna: 6
-ptea 1: 80000006
-ALLOC_SUCCES: -1 299
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
-	Loaded a process at input/proc/p1s, PID: 6 PRIO: 15
-	CPU 3: Put process  1 to run queue
-	CPU 3: Dispatched process  6
-CALC
-Time slot   9---------------------------------
-ALLOC: print_pgtbl: 0 - 512
-00000000: 80000007
-00000004: 80000006
-traverse 0 0
-ALLOC_SUCCES: 299 399
-FREE: print_pgtbl: 0 - 512
-00000000: 80000005
-00000004: 80000004
-dumpi 0 -1 299
-enlist free -1 299
-CALC
-CALC
-	CPU 2: Put process  3 to run queue
-	CPU 2: Dispatched process  3
-FREE: print_pgtbl: 0 - 512
-00000000: 80000005
-00000004: 80000004
-dumpi 0 -1 399
-enlist free -1 399
-Time slot  10---------------------------------
-	CPU 1: Put process  5 to run queue
-	CPU 1: Dispatched process  4
-CALC
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
-	Loaded a process at input/proc/s0, PID: 7 PRIO: 38
-	CPU 3: Put process  6 to run queue
-	CPU 3: Dispatched process  6
-CALC
-Time slot  11---------------------------------
-CALC
-CALC
-	CPU 2: Processed  3 has finished
-	CPU 2: Dispatched process  7
-CALC
-CALC
-Time slot  12---------------------------------
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
-CALC
-	CPU 1: Put process  4 to run queue
-	CPU 1: Dispatched process  5
-FREE: print_pgtbl: 0 - 512
-00000000: 80000007
-00000004: 80000006
-dumpi 0 -1 299
-enlist free -1 299
-	CPU 3: Put process  6 to run queue
-	CPU 3: Dispatched process  6
-CALC
-Time slot  13---------------------------------
-ALLOC: print_pgtbl: 0 - 512
-00000000: 80000007
-00000004: 80000006
-traverse -1 299
-find free space at -1 299 
-ALLOC_SUCCES_FREE: -1 99
-	CPU 2: Put process  7 to run queue
-	CPU 2: Dispatched process  7
-CALC
-CALC
-CALC
-Time slot  14---------------------------------
-	CPU 1: Put process  5 to run queue
-	CPU 1: Dispatched process  4
-CALC
-CALC
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
-	CPU 3: Put process  6 to run queue
-	CPU 3: Dispatched process  6
-CALC
-	CPU 2: Put process  7 to run queue
-	CPU 2: Dispatched process  7
-CALC
-Time slot  15---------------------------------
-CALC
-CALC
-	Loaded a process at input/proc/s1, PID: 8 PRIO: 0
-Time slot  16---------------------------------
-CALC
-CALC
-	CPU 1: Put process  4 to run queue
-	CPU 1: Dispatched process  8
-CALC
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
-	CPU 3: Put process  6 to run queue
-	CPU 3: Dispatched process  6
-CALC
-Time slot  17---------------------------------
-CALC
-CALC
-	CPU 2: Put process  7 to run queue
-	CPU 2: Dispatched process  7
-CALC
-CALC
-CALC
-	CPU 1: Put process  8 to run queue
-	CPU 1: Dispatched process  8
-CALC
-Time slot  18---------------------------------
-	CPU 0: Put process  2 to run queue
-	CPU 0: Dispatched process  2
-CALC
-	CPU 3: Processed  6 has finished
-	CPU 3: Dispatched process  5
-MALLOC: print_pgtbl: 0 - 512
-00000000: 80000007
-00000004: 80000006
-traverse 3145727 3145727
-CHECKPOINT1
-CHECKPOINT2
-CHECKPOINT 3
-dump validate: 1 3145728 3145216
->dump validate: 1 3145727 3145216
->dump validate: 0 0 512
->dump validate: 1 3145727 3145216
->dump validate: 1 3145727 3145727
-CHECKPOINT 4
-NUM PAGE 1
-vmaid: 1
-fpnm: 8
-	CPU 2: Put process  7 to run queue
-	CPU 2: Dispatched process  7
-CALC
-Time slot  19---------------------------------
-CALC
-	CPU 0: Processed  2 has finished
-	CPU 0: Dispatched process  4
-CALC
-ptem 12287: 80000008
-ALLOC_SUCCES: 3145728 3145628
-write region=1 offset=20 value=102
-print_pgtbl: 0 - 512
-00000000: 80000007
-00000004: 80000006
-addr 320
-ADDR ANALYSIS: 1 64
-Page 0: 80000006
-PHYADDR: 1600
-CALC
-Time slot  20---------------------------------
-	CPU 1: Put process  8 to run queue
-	CPU 1: Dispatched process  8
-CALC
-CALC
-	CPU 3: Put process  5 to run queue
-	CPU 3: Dispatched process  5
-write region=2 offset=1000 value=1
-print_pgtbl: 0 - 512
-00000000: 80000007
-00000004: 80000006
-addr 1000
-ADDR ANALYSIS: 3 232
-Page 0: 00000000
-	CPU 2: Put process  7 to run queue
-	CPU 2: Dispatched process  7
-CALC
-PHYADDR: 232
-Time slot  21---------------------------------
-CALC
-	CPU 0: Put process  4 to run queue
-	CPU 0: Dispatched process  4
-CALC
-	CPU 3: Processed  5 has finished
-	CPU 3: Dispatched process  1
+	CPU 1: Put process  4 to run queue at 22
+	CPU 1: Dispatched process  4 at 22
+CURRENT TIME 22CALC 4
+	CPU 2: Put process  8 to run queue at 22
+	CPU 2: Dispatched process  8 at 22
+CURRENT TIME 22CALC 8
+	CPU 3: Put process  7 to run queue at 23
+	CPU 3: Dispatched process  7 at 23
+CURRENT TIME 23CALC 7
+Time slot  23---------------------------------
+	CPU 0: Put process  1 to run queue at 23
+	CPU 2: Processed  8 has finished at 23
+	CPU 0: Dispatched process  1 at 23
+CURRENT TIME 23READ 1
 addr: 21
 Page 0: 80000001
+	CPU 2 stopped at 23
 PHYADDR: 277
 read region=2 offset=20 value=102
 print_pgtbl: 0 - 512
 00000000: 80000001
 00000004: 80000000
-CALC
-	CPU 1: Put process  8 to run queue
-	CPU 1: Dispatched process  8
-CALC
-Time slot  22---------------------------------
-CALC
+CURRENT TIME 23CALC 4
+Time slot  24---------------------------------
+CURRENT TIME 24WRITE 1
 write region=3 offset=20 value=103
 print_pgtbl: 0 - 512
 00000000: 80000001
@@ -376,18 +339,14 @@ addr 21
 ADDR ANALYSIS: 0 21
 Page 0: 80000001
 PHYADDR: 277
-Time slot  23---------------------------------
-	CPU 1: Processed  8 has finished
-	CPU 1 stopped
-	CPU 0: Put process  4 to run queue
-	CPU 0: Dispatched process  4
-CALC
-	CPU 2: Put process  7 to run queue
-	CPU 2: Dispatched process  7
-CALC
-Time slot  24---------------------------------
-	CPU 3: Put process  1 to run queue
-	CPU 3: Dispatched process  1
+CURRENT TIME 24CALC 7
+	CPU 1: Put process  4 to run queue at 24
+	CPU 1: Dispatched process  4 at 24
+CURRENT TIME 24CALC 4
+Time slot  25---------------------------------
+	CPU 0: Put process  1 to run queue at 25
+	CPU 0: Dispatched process  1 at 25
+CURRENT TIME 25READ 1
 addr: 21
 Page 0: 80000001
 PHYADDR: 277
@@ -395,30 +354,22 @@ read region=3 offset=20 value=103
 print_pgtbl: 0 - 512
 00000000: 80000001
 00000004: 80000000
-CALC
-CALC
-Time slot  25---------------------------------
-CALC
-	CPU 2: Put process  7 to run queue
-	CPU 2: Dispatched process  7
-CALC
-	CPU 0: Put process  4 to run queue
-	CPU 0: Dispatched process  4
-CALC
+	CPU 3: Put process  7 to run queue at 25
+	CPU 3: Dispatched process  7 at 25
+CURRENT TIME 25CALC 7
+	CPU 1: Processed  4 has finished at 25
+	CPU 1 stopped at 25
 Time slot  26---------------------------------
-	CPU 2: Processed  7 has finished
-	CPU 2 stopped
-	CPU 3: Put process  1 to run queue
-	CPU 3: Dispatched process  1
-FREE: print_pgtbl: 0 - 512
-00000000: 80000001
-00000004: 80000000
-dumpi 1 3145728 3145428
-enlist free 3145728 3145428
-	CPU 0: Processed  4 has finished
-	CPU 0 stopped
+CURRENT TIME 26CALC 1
+	CPU 3: Processed  7 has finished at 26
+	CPU 3 stopped at 26
 Time slot  27---------------------------------
-CALC
+	CPU 0: Put process  1 to run queue at 27
+	CPU 0: Dispatched process  1 at 27
+CURRENT TIME 27FREE 1
+enlist free 3145728 3145428
+CURRENT TIME 28CALC 1
 Time slot  28---------------------------------
-	CPU 3: Processed  1 has finished
-	CPU 3 stopped
+Time slot  29---------------------------------
+	CPU 0: Processed  1 has finished at 29
+	CPU 0 stopped at 29

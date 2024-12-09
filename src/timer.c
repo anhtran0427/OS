@@ -73,6 +73,8 @@ void next_slot(struct timer_id_t * timer_id) {
 			&timer_id->timer_lock
 		);
 	}
+
+	//printf("escape next_slot\n");
 	pthread_mutex_unlock(&timer_id->timer_lock);
 }
 

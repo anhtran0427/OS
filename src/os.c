@@ -59,21 +59,21 @@ static void * cpu_routine(void * args) {
 		 	* ready queue */
 			proc = get_proc();
 			if (proc == NULL) {
-			  printf("EMPTY QUEUE %d\n",id);
+			 // printf("EMPTY QUEUE %d\n",id);
                            next_slot(timer_id);
                            continue; /* First load failed. skip dummy load */
                         }
 		}else if (proc->pc == proc->code->size) {
 			/* The porcess has finish it job */
-			printf("\tCPU %d: Processed %2d has finished\n",
-				id ,proc->pid);
+			printf("\tCPU %d: Processed %2d has finished at %d\n",
+				id ,proc->pid,current_time());
 			free(proc);
 			proc = get_proc();
 			time_left = 0;
 		}else if (time_left == 0) {
 			/* The process has done its job in current time slot */
-			printf("\tCPU %d: Put process %2d to run queue\n",
-				id, proc->pid);
+			printf("\tCPU %d: Put process %2d to run queue at %d\n",
+				id, proc->pid,current_time());
 			put_proc(proc);
 			proc = get_proc();
 		}
@@ -81,7 +81,7 @@ static void * cpu_routine(void * args) {
 		/* Recheck process status after loading new process */
 		if (proc == NULL && done) {
 			/* No process to run, exit */
-			printf("\tCPU %d stopped\n", id);
+			printf("\tCPU %d stopped at %d\n", id, current_time());
 			break;
 		}else if (proc == NULL) {
 			/* There may be new processes to run in
@@ -89,8 +89,8 @@ static void * cpu_routine(void * args) {
 			next_slot(timer_id);
 			continue;
 		}else if (time_left == 0) {
-			printf("\tCPU %d: Dispatched process %2d\n",
-				id, proc->pid);
+			printf("\tCPU %d: Dispatched process %2d at %d\n",
+				id, proc->pid,current_time());
 			time_left = time_slot;
 		}
 		
@@ -123,6 +123,7 @@ static void * ld_routine(void * args) {
 			next_slot(timer_id);
 		}
 #ifdef MM_PAGING
+		
 		proc->mm = malloc(sizeof(struct mm_struct));
 #ifdef MM_PAGING_HEAP_GODOWN
 		proc->vmemsz = vmemsz;
@@ -131,7 +132,8 @@ static void * ld_routine(void * args) {
 		proc->mram = mram;
 		proc->mswp = mswp;
 		proc->active_mswp = active_mswp;
-#endif
+#endif		
+		//printf("dump: %d %d\n",current_time(),ld_processes.start_time[i]);
 		printf("\tLoaded a process at %s, PID: %d PRIO: %ld\n",
 			ld_processes.path[i], proc->pid, ld_processes.prio[i]);
 		add_proc(proc);
@@ -207,6 +209,7 @@ static void read_config(const char * path) {
 }
 
 int main(int argc, char * argv[]) {
+	pthread_mutex_init(&MEM_in_use,NULL);
 	/* Read config */
 	if (argc != 2) {
 		printf("Usage: os [path to configure file]\n");
